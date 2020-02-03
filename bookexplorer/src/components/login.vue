@@ -6,7 +6,7 @@
           <v-col cols="12" sm="8" md="4">
             <v-card class="elevation-12">
               <v-toolbar color="primary" dark flat>
-                <v-toolbar-title>Login</v-toolbar-title>
+                <v-toolbar-title>Login to BookExplorer</v-toolbar-title>
                 <v-spacer />
                 <v-tooltip right>
                   <template v-slot:activator="{ on }">
@@ -27,7 +27,6 @@
                     type="text"
                   />
                   <v-text-field
-                    id="password"
                     label="Password"
                     v-model="user.password"
                     prepend-icon="mdi-lock"
@@ -68,7 +67,7 @@
       <!-- Message if user is able to register -->
       <template>
         <div class="text-center ma-2">
-          <v-snackbar v-model="snackbar">
+          <v-snackbar top v-model="snackbar">
             <h3> Successfully Registered </h3>
             <v-btn color="pink" text @click="snackbar = false">Close</v-btn>
           </v-snackbar>
@@ -104,7 +103,6 @@
                 />
                 <h2>Password</h2>
                 <v-text-field
-                  id="password"
                   placeholder="abc123"
                   v-model="new_user.password"
                   type="password"
@@ -113,7 +111,6 @@
                 />
                 <h2>Re-type Password</h2>
                 <v-text-field
-                  id="password"
                   placeholder="abc123"
                   v-model="new_user.re_password"
                   type="password"
@@ -127,9 +124,21 @@
         </v-dialog>
       </v-row>
     </template>
+          <!-- Message if user is able to register -->
+      <template>
+        <div class="text-center ma-2">
+          <v-snackbar top v-model="failed">
+            <h3> Registration failed, please check your credentials and try again later </h3>
+            <v-btn color="pink" text @click="failed = false">Close</v-btn>
+          </v-snackbar>
+        </div>
+      </template>
   </v-app>
 </template>
+
 <script>
+import axios from 'axios'
+
 export default {
   name: "login",
   data() {
@@ -147,16 +156,44 @@ export default {
         re_password: null
       },
       invalid: false,
-      snackbar: false
+      snackbar: false,
+      failed: false,
+      response: true
     };
   },
   methods: {
+    // function to vallidate registration
     validate() {
       if (this.new_user.password != this.new_user.re_password) {
         this.invalid = true;
+        //if password matches then submit to database
       } else {
         this.invalid = false;
         this.dialog = false;
+        this.registering();
+      }
+    },
+    //function to register user - send http request to back
+    registering() {
+      axios.get("http://127.0.0.1:5000/register", {
+        params: {
+          username: this.new_user.username,
+          password: this.new_user.password
+        },
+        proxy: {
+          host: 'http://127.0.0.1',
+          port: 5000
+        }
+      })
+      .then((result) => { 
+        this.response = result;
+        this.worked();
+      }) 
+    },
+    worked() {
+      if (this.response.data == "failed") {
+        this.failed = true;
+      } else {
         this.snackbar = true;
       }
     }
