@@ -68,7 +68,7 @@
       <template>
         <div class="text-center ma-2">
           <v-snackbar top v-model="snackbar">
-            <h3> Successfully Registered </h3>
+            <h3>Successfully Registered</h3>
             <v-btn color="pink" text @click="snackbar = false">Close</v-btn>
           </v-snackbar>
         </div>
@@ -91,6 +91,12 @@
               v-model="invalid"
               transition="scale-transition"
             >Passwords do not match!</v-alert>
+            <v-alert
+              dark
+              type="error"
+              v-model="names"
+              transition="scale-transition"
+            >Username already exists!</v-alert>
             <div class="register-box">
               <v-form>
                 <h2>Username</h2>
@@ -124,20 +130,20 @@
         </v-dialog>
       </v-row>
     </template>
-          <!-- Message if user is able to register -->
-      <template>
-        <div class="text-center ma-2">
-          <v-snackbar top v-model="failed">
-            <h3> Registration failed, please check your credentials and try again later </h3>
-            <v-btn color="pink" text @click="failed = false">Close</v-btn>
-          </v-snackbar>
-        </div>
-      </template>
+    <!-- Message if user is able to register -->
+    <template>
+      <div class="text-center ma-2">
+        <v-snackbar top v-model="failed">
+          <h3>Registration failed, please check your credentials and try again later</h3>
+          <v-btn color="pink" text @click="failed = false">Close</v-btn>
+        </v-snackbar>
+      </div>
+    </template>
   </v-app>
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "axios";
 
 export default {
   name: "login",
@@ -146,6 +152,7 @@ export default {
       overlay: false,
       dialog: false,
       register: false,
+      names: false,
       user: {
         username: null,
         password: null
@@ -158,7 +165,8 @@ export default {
       invalid: false,
       snackbar: false,
       failed: false,
-      response: true
+      response: true,
+      response2: null
     };
   },
   methods: {
@@ -169,27 +177,48 @@ export default {
         //if password matches then submit to database
       } else {
         this.invalid = false;
-        this.dialog = false;
-        this.registering();
+        //if passwords match, check to see if username already exists
+        axios
+          .get("http://127.0.0.1:5000/namecheck", {
+            params: {
+              username: this.new_user.username
+            },
+            proxy: {
+              host: "http://127.0.0.1",
+              port: 5000
+            }
+          })
+          .then(result => {
+            //if the username already exists, display error
+            this.response2 = result;
+            if (result.data.exists == "true") {
+              this.names = true;
+            } else {
+              this.dialog = false;
+              this.registering();
+            }
+          });
       }
     },
     //function to register user - send http request to back
     registering() {
-      axios.get("http://127.0.0.1:5000/register", {
-        params: {
-          username: this.new_user.username,
-          password: this.new_user.password
-        },
-        proxy: {
-          host: 'http://127.0.0.1',
-          port: 5000
-        }
-      })
-      .then((result) => { 
-        this.response = result;
-        this.worked();
-      }) 
+      axios
+        .get("http://127.0.0.1:5000/register", {
+          params: {
+            username: this.new_user.username,
+            password: this.new_user.password
+          },
+          proxy: {
+            host: "http://127.0.0.1",
+            port: 5000
+          }
+        })
+        .then(result => {
+          this.response = result;
+          this.worked();
+        });
     },
+
     worked() {
       if (this.response.data == "failed") {
         this.failed = true;

@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, request, session, render_template
+from flask import Flask, request, session, render_template, jsonify
 from flask_session import Session
 from flask_cors import CORS, cross_origin
 from sqlalchemy import create_engine, exc
@@ -41,7 +41,18 @@ def registering():
         {"username": username, "password": password})
 
         db.commit() 
-
     except exc.SQLAlchemyError:
         return "failure"
     return "success"
+
+@app.route("/namecheck")
+@cross_origin()
+def namecheck():
+    username = request.args.get("username")
+    if db.execute("SELECT username FROM registered_users WHERE username=:username", {"username": username}).rowcount == 1:
+        return ({"user": username, "exists": "true"})
+    else:
+        return ({"exists": "false"}) 
+
+    
+
