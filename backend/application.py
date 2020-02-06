@@ -54,5 +54,13 @@ def namecheck():
     else:
         return ({"exists": "false"}) 
 
-    
+@app.route("/loggingin")
+@cross_origin()
+def loggingin():
+    username = request.args.get("username")
+    password = request.args.get("password")
+    if db.execute("SELECT username FROM registered_users WHERE username=:username AND password=:password", {"username": username, "password": password}).rowcount == 1:
+        return ({"user": username, "loggedin": "true"})
+    else:
+        return ({"user": username, "loggedin": "false"}) 
 

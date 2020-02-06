@@ -40,7 +40,7 @@
                   <v-btn text @click="dialog = !dialog">Register Here</v-btn>
                 </v-card-text>
                 <v-spacer />
-                <v-btn color="primary">Login</v-btn>
+                <v-btn color="primary" @click="logging">Login</v-btn>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -139,6 +139,14 @@
         </v-snackbar>
       </div>
     </template>
+        <template>
+      <div class="text-center ma-2">
+        <v-snackbar top v-model="logerror">
+          <h3>Could not log in. Please check your username and password!</h3>
+          <v-btn color="pink" text @click="failed = false">Close</v-btn>
+        </v-snackbar>
+      </div>
+    </template>
   </v-app>
 </template>
 
@@ -165,6 +173,8 @@ export default {
       invalid: false,
       snackbar: false,
       failed: false,
+      logerror: false,
+      loggedin: false,
       response: true,
       response2: null
     };
@@ -218,12 +228,43 @@ export default {
           this.worked();
         });
     },
-
+    //function to log in user 
+    logging() {
+      axios
+        .get("http://127.0.0.1:5000/loggingin", {
+          params: {
+            username: this.user.username,
+            password: this.user.password
+          },
+          proxy: {
+            host: "http://127.0.0.1",
+            port: 5000
+          }
+        })
+        .then(result => {
+          //if the username already exists, display error
+          this.response2 = result;
+          if (result.data.loggedin == "true") {
+            this.loggedin = true;
+            //send username to application 
+            this.$emit("logininfo", this.user.username);
+            //reset fields
+            this.user.username = null;
+            this.user.password = null;
+          } else {
+            this.logerror = true;
+          }
+        });
+    },
     worked() {
       if (this.response.data == "failed") {
         this.failed = true;
       } else {
         this.snackbar = true;
+        //reset registration fields
+        this.new_user.username = null;
+        this.new_user.password = null;
+        this.new_user.re_password = null;
       }
     }
   }
