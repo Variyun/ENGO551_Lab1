@@ -143,7 +143,7 @@
       <div class="text-center ma-2">
         <v-snackbar top v-model="logerror">
           <h3>Could not log in. Please check your username and password!</h3>
-          <v-btn color="pink" text @click="failed = false">Close</v-btn>
+          <v-btn color="pink" text @click="logerror = false">Close</v-btn>
         </v-snackbar>
       </div>
     </template>
@@ -248,7 +248,7 @@ export default {
             this.loggedin = true;
             //send username to application 
             this.$emit("logininfo", this.user.username);
-            //reset fields
+            this.$emit("currentTabComponent", "BExplorer");
             this.user.username = null;
             this.user.password = null;
           } else {
