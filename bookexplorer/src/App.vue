@@ -8,6 +8,7 @@
 <script>
 import login from './components/login';
 import BExplorer from './components/BExplorer';
+import {eventBus} from './main.js';
 
 export default {
   name: 'App',
@@ -18,21 +19,26 @@ export default {
   },
 
   data: () => ({
-    loggedout: true,
-    test: false,
-    currentTab: "login"
+    currentTab: "login",
+    username: null,
+
   }),
-  methods: {
-    
+  mounted() {
+    eventBus.$on("log-in", data => {
+      this.currentTab = data.tab; 
+      this.username = data.user;
+    });
+
+    eventBus.$on("log-out", data => {
+      this.currentTab = data; 
+      this.username = null;
+    });
   },
   computed: {
     currentTabComponent() {
-      return this.currentTab.toLowerCase();
+      return this.currentTab;
     }
   },
-  props: {
-   //
-  }
 }
 
 </script>

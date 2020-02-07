@@ -25,12 +25,14 @@
                     v-model="user.username"
                     prepend-icon="mdi-face-profile"
                     type="text"
+                    @keyup.enter="logging"
                   />
                   <v-text-field
                     label="Password"
                     v-model="user.password"
                     prepend-icon="mdi-lock"
                     type="password"
+                    @keyup.enter="logging"
                   />
                 </v-form>
               </v-card-text>
@@ -152,6 +154,7 @@
 
 <script>
 import axios from "axios";
+import {eventBus} from "../main.js";
 
 export default {
   name: "login",
@@ -179,6 +182,7 @@ export default {
       response2: null
     };
   },
+
   methods: {
     // function to vallidate registration
     validate() {
@@ -247,8 +251,7 @@ export default {
           if (result.data.loggedin == "true") {
             this.loggedin = true;
             //send username to application 
-            this.$emit("logininfo", this.user.username);
-            this.$emit("currentTabComponent", "BExplorer");
+            eventBus.$emit("log-in", {tab: "BExplorer", user: this.user.username});
             this.user.username = null;
             this.user.password = null;
           } else {

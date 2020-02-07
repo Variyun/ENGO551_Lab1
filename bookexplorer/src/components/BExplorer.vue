@@ -13,12 +13,12 @@
             <v-list-item-title>Account</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item link>
+        <v-list-item link @click="logout">
           <v-list-item-action>
             <v-icon>mdi-logout</v-icon>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title>Logout</v-list-item-title>
+            <v-list-item-title >Logout</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -45,16 +45,20 @@
 </template>
 
 <script>
+import {eventBus} from '../main.js';
   export default {
     name: "BExplorer",
     data: () => ({
-      drawer: null,
+      drawer: false,
       user: null,
     }),
     methods: {
         logininfo(username) {
             this.user = username;
-        }
+        },
+        logout() {
+          eventBus.$emit("log-out", "login");
+        } 
     }
   }
 </script>

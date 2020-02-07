@@ -4,6 +4,8 @@ import vuetify from './plugins/vuetify';
 import axios from 'axios'
 
 Vue.config.productionTip = false
+//constant variable eventbus
+export const eventBus = new Vue();
 
 new Vue({
   vuetify,
