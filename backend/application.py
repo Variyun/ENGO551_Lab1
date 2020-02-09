@@ -64,3 +64,32 @@ def loggingin():
     else:
         return ({"user": username, "loggedin": "false"}) 
 
+@app.route("/booksearch")
+@cross_origin()
+def booksearch():
+    book = request.args.get("book")
+    option = request.args.get("option")
+    if option == "Author":
+        out_book = db.execute("SELECT * FROM library WHERE author LIKE %:book%", {"book": book}).fetchall()
+        if out_book is None:
+            return "notfound"
+        else:
+            return out_book
+    elif option == "Title":
+        out_book = db.execute("SELECT * FROM library WHERE title LIKE %:book%", {"book": book}).fetchall()
+        if out_book is None:
+            return "notfound"
+        else:
+            return out_book
+    elif option == "Year":
+        out_book = db.execute("SELECT * FROM library WHERE year like :book", {"book": book}).fetchall()
+        if out_book is None:
+            return "notfound"
+        else:
+            return out_book
+    elif option == "ISBN":
+        out_book = db.execute("SELECT * FROM library WHERE isbn LIKE %:book%", {"book": book}).fetchall()
+        if out_book is None:
+            return "notfound"
+        else:
+            return out_book
