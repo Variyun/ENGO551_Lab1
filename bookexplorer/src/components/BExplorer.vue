@@ -62,7 +62,7 @@ export default {
     searchfield: null,
     option: null,
     items: ['Title', 'Author', 'Year', 'ISBN'],
-    response: [],
+    response: null,
   }),
   methods: {
     logininfo(username) {
