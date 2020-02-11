@@ -23,7 +23,9 @@
     <!-- top app bar -->
     <v-app-bar app color="indigo" dark>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-toolbar-title>BookExplorer</v-toolbar-title>
+      <v-toolbar-title>
+        <h2>BookExplorer</h2>
+      </v-toolbar-title>
     </v-app-bar>
     <template>
       <div class="text-center ma-2">
@@ -72,14 +74,21 @@
                 <v-btn icon dark @click="dialog = false">
                   <v-icon>mdi-close</v-icon>
                 </v-btn>
-                <v-toolbar-title> {{ selected_book.title }}, ({{selected_book.isbn}}) </v-toolbar-title>
+                <v-toolbar-title>
+                  <h2>{{ selected_book.title }}, ({{selected_book.isbn}})</h2>
+                </v-toolbar-title>
               </v-toolbar>
               <div class="register-box">
-                <h3> Written by {{selected_book.author }}, {{selected_book.year}} </h3>
-                <!-- goodreads api, get reviews and score --> 
-                <v-btn color="indigo" dark> submit a review </v-btn>
+                <h2>Written by {{selected_book.author }}, {{selected_book.year}}</h2>
+                <br />
+                <!-- goodreads api, get reviews and score -->
+                <h3>Average rating on Goodreads</h3>
+                <v-rating v-model="rating.avg_rating" readonly></v-rating>
+                <h3>{{ rating.avg_rating }} / 5 ({{rating.no_rating}} ratings)</h3>
+                <br />
+                <v-btn color="indigo" dark @click="submit_review">submit a review</v-btn>
               </div>
-              <br/>
+              <br />
               <!-- display reviews -->
               <v-row align="center" justify="center">
                 <v-data-table
@@ -87,9 +96,34 @@
                   :items="response_review"
                   :items-per-page="10"
                   class="elevation-1"
-                  @click:row="handleClick"
                 ></v-data-table>
               </v-row>
+            </v-card>
+          </v-dialog>
+        </v-row>
+      </template>
+      <!-- review dialogue -->
+      <template>
+        <v-row justify="center">
+          <v-btn color="indigo" dark @click.stop="rev_dialog = true">Open Dialog</v-btn>
+
+          <v-dialog v-model="rev_dialog" max-width="40%" hide-overlay>
+            <v-card>
+              <v-card-title class="headline">Write a Review!</v-card-title>
+              <v-textarea 
+                counter="250" 
+                filled 
+                outlined 
+                v-model="user_review"
+                :maxlength="250"
+                class="pa-5"
+              ></v-textarea>
+              <v-card-text>Let other users know what you think of the book! Did you love it? Did you hate it? Don't be afraid to be honest.</v-card-text>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="green darken-1" text @click="rev_dialog = false">submit</v-btn>
+              </v-card-actions>
             </v-card>
           </v-dialog>
         </v-row>
@@ -121,16 +155,22 @@ export default {
     headers_book: [
       { text: "Username", value: "username" },
       { text: "Review", value: "review" },
-      { text: "Rating", value: "rating" },
+      { text: "Rating", value: "rating" }
     ],
     selected_book: [
       { isbn: 1234 },
       { title: "default" },
       { year: 2020 },
-      { author: "default" },
+      { author: "default" }
     ],
     goodread_reviews: null,
+    rating: {
+      avg_rating: 0.0,
+      no_rating: "Unknown"
+    },
     dialog: false,
+    rev_dialog: false,
+    user_review: "",
   }),
   methods: {
     logout() {
@@ -161,23 +201,35 @@ export default {
           }
         });
     },
-    // 
+    //
     handleClick(value) {
       this.selected_book = value;
       this.dialog = true;
-      //https://www.goodreads.com/book/review_counts.json
+      //get ratings from goodreads
       axios
-        .get("https://www.goodreads.com/book/review_counts", {
+        .get("http://127.0.0.1:5000/goodread", {
           params: {
-            key: "swIxMzw2BAh2FK5fXd3PSg",
-            isbns: this.selected_book.isbn,
-            format: "json"
+            isbn: this.selected_book.isbn
           },
+          proxy: {
+            host: "http://127.0.0.1",
+            port: 5000
+          }
         })
         .then(result => {
-          //if the username already exists, display error
-          this.response_review = result;
+          //checks to see if goodread api returns any books, if so store ratings and number of ratings
+          this.goodread_reviews = result.data;
+          if (this.goodread_reviews.status == "good") {
+            this.rating.avg_rating = Number(
+              this.goodread_reviews.goodread.books[0].average_rating
+            );
+            this.rating.no_rating = this.goodread_reviews.goodread.books[0].ratings_count;
+          }
         });
+      //get reviews from database
+    },
+    submit_review() {
+      this.rev_dialog = true;
     },
     mounted() {
       eventBus.$on("pass-user", data => {
@@ -195,7 +247,7 @@ export default {
 }
 
 .register-box {
-  width: 30%;
+  width: 40%;
   padding-left: 5%;
   padding-top: 2%;
 }

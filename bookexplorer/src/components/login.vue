@@ -42,7 +42,7 @@
                   <v-btn text @click="dialog = !dialog">Register Here</v-btn>
                 </v-card-text>
                 <v-spacer />
-                <v-btn color="primary" @click="logging">Login</v-btn>
+                <v-btn color="indigo" @click="logging" dark>Login</v-btn>
               </v-card-actions>
             </v-card>
           </v-col>

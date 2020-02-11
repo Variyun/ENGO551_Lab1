@@ -6,6 +6,7 @@ from flask_cors import CORS, cross_origin
 from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import scoped_session, sessionmaker
 import psycopg2
+import requests
 
 # template_folder='../bookexplorer/public/
 app = Flask(__name__)
@@ -85,3 +86,16 @@ def booksearch():
         out_book = db.execute("SELECT * FROM library WHERE isbn LIKE :book", {"book":"%" + book + "%"}).fetchall()
         data = jsonify({'result': [dict(row) for row in out_book]})
         return data
+
+@app.route("/goodread")
+@cross_origin()
+def goodread():
+    # key = "swIxMzw2BAh2FK5fXd3PSg"
+    url = "https://www.goodreads.com/book/review_counts?key=swIxMzw2BAh2FK5fXd3PSg&isbns="
+    isbns = request.args.get("isbn")
+    test = url + isbns + "&format=json"
+    r = requests.get(url + isbns + "&format=json")
+    if r.ok:
+        return jsonify({"goodread": r.json(), "status": "good"}) 
+    else:
+        return jsonify({"status": "bad"}) 
