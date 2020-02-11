@@ -5,7 +5,7 @@
         <v-row align="center" justify="center">
           <v-col cols="12" sm="8" md="4">
             <v-card class="elevation-12">
-              <v-toolbar color="primary" dark flat>
+              <v-toolbar color="indigo" dark flat>
                 <v-toolbar-title>Login to BookExplorer</v-toolbar-title>
                 <v-spacer />
                 <v-tooltip right>
@@ -70,7 +70,7 @@
       <template>
         <div class="text-center ma-2">
           <v-snackbar top v-model="snackbar">
-            <h3>Successfully Registered</h3>
+            <h3> {{message}} </h3>
             <v-btn color="pink" text @click="snackbar = false">Close</v-btn>
           </v-snackbar>
         </div>
@@ -81,7 +81,7 @@
       <v-row justify="center">
         <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
           <v-card>
-            <v-toolbar dark color="primary">
+            <v-toolbar dark color="indigo">
               <v-btn icon dark @click="dialog = false">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
@@ -132,23 +132,6 @@
         </v-dialog>
       </v-row>
     </template>
-    <!-- Message if user is able to register -->
-    <template>
-      <div class="text-center ma-2">
-        <v-snackbar top v-model="failed">
-          <h3>Registration failed, please check your credentials and try again later</h3>
-          <v-btn color="pink" text @click="failed = false">Close</v-btn>
-        </v-snackbar>
-      </div>
-    </template>
-        <template>
-      <div class="text-center ma-2">
-        <v-snackbar top v-model="logerror">
-          <h3>Could not log in. Please check your username and password!</h3>
-          <v-btn color="pink" text @click="logerror = false">Close</v-btn>
-        </v-snackbar>
-      </div>
-    </template>
   </v-app>
 </template>
 
@@ -175,11 +158,9 @@ export default {
       },
       invalid: false,
       snackbar: false,
-      failed: false,
-      logerror: false,
       loggedin: false,
       response: true,
-      response2: null
+      message: "If you are seeing this, something is wrong"
     };
   },
 
@@ -204,7 +185,7 @@ export default {
           })
           .then(result => {
             //if the username already exists, display error
-            this.response2 = result;
+            this.response = result;
             if (result.data.exists == "true") {
               this.names = true;
             } else {
@@ -247,7 +228,7 @@ export default {
         })
         .then(result => {
           //if the username already exists, display error
-          this.response2 = result;
+          this.response = result;
           if (result.data.loggedin == "true") {
             this.loggedin = true;
             //send username to application 
@@ -255,14 +236,17 @@ export default {
             this.user.username = null;
             this.user.password = null;
           } else {
-            this.logerror = true;
+            this.message = "Could not log in, please check your credentials!"
+            this.snackbar = true;
           }
         });
     },
     worked() {
       if (this.response.data == "failed") {
-        this.failed = true;
+        this.message = " Registration failed, please try again later";
+        this.snackbar = true; 
       } else {
+        this.message = "Successfully Registered!"
         this.snackbar = true;
         //reset registration fields
         this.new_user.username = null;

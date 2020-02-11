@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <component v-bind:is="currentTabComponent"></component>
+    <component v-bind:is="currentTabComponent" v-bind:username="username"></component>
   </v-app>
 </template>
 

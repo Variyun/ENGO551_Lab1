@@ -70,26 +70,18 @@ def booksearch():
     book = request.args.get("book")
     option = request.args.get("option")
     if option == "Author":
-        out_book = db.execute("SELECT * FROM library WHERE author LIKE :book", {"book": book}).fetchall()
-        if out_book is None:
-            return "notfound"
-        else:
-            return "worked"
+        out_book = db.execute("SELECT * FROM library WHERE author LIKE :book", {"book": "%" + book + "%"}).fetchall()
+        data = jsonify({'result': [dict(row) for row in out_book]})
+        return data
     elif option == "Title":
-        out_book = db.execute("SELECT * FROM library WHERE title LIKE :book", {"book": book}).fetchall()
-        if out_book is None:
-            return "notfound"
-        else:
-            return "worked"
+        out_book = db.execute("SELECT * FROM library WHERE title LIKE :book", {"book": "%" + book + "%"}).fetchall()
+        data = jsonify({'result': [dict(row) for row in out_book]})
+        return data
     elif option == "Year":
-        out_book = db.execute("SELECT * FROM library WHERE CAST(year as TEXT) LIKE :book", {"book": book}).fetchall()
-        if out_book is None:
-            return "notfound"
-        else:
-            return "worked"
+        out_book = db.execute("SELECT * FROM library WHERE CAST(year as TEXT) LIKE :book", {"book": "%" + book + "%"}).fetchall()
+        data = jsonify({'result': [dict(row) for row in out_book]})
+        return data
     elif option == "ISBN":
-        out_book = db.execute("SELECT * FROM library WHERE isbn LIKE :book", {"book":book }).fetchall()
-        if out_book is None:
-            return "notfound"
-        else:
-            return "worked"
+        out_book = db.execute("SELECT * FROM library WHERE isbn LIKE :book", {"book":"%" + book + "%"}).fetchall()
+        data = jsonify({'result': [dict(row) for row in out_book]})
+        return data
