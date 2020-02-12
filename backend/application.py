@@ -1,12 +1,9 @@
-import os
-
+import os, psycopg2, requests
 from flask import Flask, request, session, render_template, jsonify
 from flask_session import Session
 from flask_cors import CORS, cross_origin
 from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import scoped_session, sessionmaker
-import psycopg2
-import requests
 
 # template_folder='../bookexplorer/public/
 app = Flask(__name__)
@@ -24,13 +21,14 @@ CORS(app)
 engine = create_engine(os.getenv("DATABASE_URL"))
 conn = psycopg2.connect(os.getenv("DATABASE_URL"), sslmode='require')
 db = scoped_session(sessionmaker(bind=engine))
-#CORS(conn)
 
+# default app address 
 @app.route("/")
 @cross_origin()
 def index():
     return "Hello World"
 
+# registration for users
 @app.route("/register")
 @cross_origin()
 def registering():
@@ -46,6 +44,7 @@ def registering():
         return "failure"
     return "success"
 
+# check for username, return error if username exists 
 @app.route("/namecheck")
 @cross_origin()
 def namecheck():
@@ -55,6 +54,7 @@ def namecheck():
     else:
         return ({"exists": "false"}) 
 
+# See if username and password match in database to log in user 
 @app.route("/loggingin")
 @cross_origin()
 def loggingin():
@@ -122,3 +122,27 @@ def get_review():
     out_book = db.execute("SELECT * FROM reviews WHERE isbn=:isbn", {"isbn": isbn}).fetchall()
     data = jsonify({'result': [dict(row) for row in out_book]})
     return data
+
+# Api function for other users to use 
+@app.route("/api", methods=["GET"])
+@cross_origin()
+def api():
+    isbn = request.args.get("isbn")
+    book = db.execute("SELECT * FROM library WHERE isbn=:isbn", {"isbn": isbn}).fetchall()
+    if len(book) == 0:
+        return "404: Could not find book with this ISBN"
+    try: # get ratings
+        reviews = db.execute("SELECT rating FROM reviews WHERE isbn=:isbn", {"isbn": isbn}).fetchall()
+    except exc.SQLAlchemyError:
+        return "Error with SQL"
+
+    # calculate average ratings/ score
+    avg = 0
+    if len(reviews) != 0:
+        for row in reviews:
+            avg = avg + row.rating
+        avg = avg / len(reviews)
+    return jsonify(title=book[0].title, author=book[0].author, year=book[0].year, isbn=isbn, review_count=len(reviews), average_score=avg)
+ 
+    
+    

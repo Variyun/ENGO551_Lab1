@@ -37,22 +37,22 @@
     </template>
     <!-- content of the website -->
     <v-content>
-      <v-container class="fill-height" fluid>
+      <v-container class="fill-height" fluid style="width:60%">
         <!-- Search bar -->
         <v-row>
-          <v-col class="d-flex">
-            <v-text-field placeholder="Search..." type="text" v-model="searchfield" />
-          </v-col>
+            <v-col class="d-flex">
+              <v-text-field placeholder="Search..." type="text" v-model="searchfield" outlined filled/>
+            </v-col>
 
-          <v-col class="d-flex">
-            <v-select :items="items" placeholder="Search Type" v-model="option"></v-select>
-          </v-col>
+            <v-col class="d-flex" lg="2">
+              <v-select :items="items" placeholder="Search Type" v-model="option"></v-select>
+            </v-col>
 
-          <v-col class="d-flex">
-            <v-btn @click="booksearch">
-              <v-icon>mdi-magnify</v-icon>
-            </v-btn>
-          </v-col>
+            <v-col class="d-flex" lg="2">
+              <v-btn @click="booksearch">
+                <v-icon>mdi-magnify</v-icon>
+              </v-btn>
+            </v-col>
         </v-row>
         <!-- Table to show search results -->
         <v-row align="center" justify="center">
@@ -60,7 +60,7 @@
             :headers="headers"
             :items="response"
             :items-per-page="10"
-            class="elevation-1"
+            class="elevation-2"
             @click:row="handleClick"
           ></v-data-table>
         </v-row>
@@ -97,7 +97,7 @@
                   :headers="headers_book"
                   :items="response_review2"
                   :items-per-page="10"
-                  class="elevation-1"
+                  class="elevation-2"
                 ></v-data-table>
                 </v-container>
               </v-row>
@@ -112,11 +112,11 @@
             <v-card>
               <v-card-title class="headline">Write a Review!</v-card-title>
               <v-textarea 
-                counter="250" 
+                counter="100" 
                 filled 
                 outlined 
                 v-model="user_review"
-                :maxlength="250"
+                :maxlength="100"
                 class="pa-5"
                 required
               ></v-textarea>
@@ -292,6 +292,7 @@ export default {
           this.response_reviews2 = result;
           this.get_userreview(); 
         });
+      this.user_review="Please write your review here."
     },
     mounted() {
       eventBus.$on("pass-user", data => {
