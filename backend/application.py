@@ -99,3 +99,26 @@ def goodread():
         return jsonify({"goodread": r.json(), "status": "good"}) 
     else:
         return jsonify({"status": "bad"}) 
+
+@app.route("/submitreview")
+@cross_origin()
+def submitreview():
+    isbn = request.args.get("isbn")
+    username = request.args.get("username")
+    review = request.args.get("review")
+    rating = request.args.get("rating")
+    try:
+        db.execute("INSERT INTO reviews (isbn, username, review, rating) VALUES (:isbn, :username, :review, :rating)", 
+        {"isbn": isbn, "username": username, "review": review, "rating": rating})
+        db.commit() 
+    except exc.SQLAlchemyError:
+        return "failure"
+    return "success"
+
+@app.route("/get_review")
+@cross_origin()
+def get_review():
+    isbn = request.args.get("isbn")
+    out_book = db.execute("SELECT * FROM reviews WHERE isbn=:isbn", {"isbn": isbn}).fetchall()
+    data = jsonify({'result': [dict(row) for row in out_book]})
+    return data

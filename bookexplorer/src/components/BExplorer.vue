@@ -82,21 +82,24 @@
                 <h2>Written by {{selected_book.author }}, {{selected_book.year}}</h2>
                 <br />
                 <!-- goodreads api, get reviews and score -->
-                <h3>Average rating on Goodreads</h3>
+                <h3>Average Rating on Goodreads: {{ rating.avg_rating }} / 5 ({{rating.no_rating}} Ratings)</h3>
                 <v-rating v-model="rating.avg_rating" readonly></v-rating>
-                <h3>{{ rating.avg_rating }} / 5 ({{rating.no_rating}} ratings)</h3>
+                <h3>Average User Rating: {{ avg_user_rating }} / 5 ({{ no_user_rating }} Ratings)</h3>
+                <v-rating v-model="avg_user_rating" readonly></v-rating>
                 <br />
-                <v-btn color="indigo" dark @click="submit_review">submit a review</v-btn>
+                <v-btn color="indigo" dark @click="rev_dialog=true">submit a review</v-btn>
               </div>
               <br />
               <!-- display reviews -->
               <v-row align="center" justify="center">
+                <v-container fluid style="width: 50%">
                 <v-data-table
                   :headers="headers_book"
-                  :items="response_review"
+                  :items="response_review2"
                   :items-per-page="10"
                   class="elevation-1"
                 ></v-data-table>
+                </v-container>
               </v-row>
             </v-card>
           </v-dialog>
@@ -105,8 +108,6 @@
       <!-- review dialogue -->
       <template>
         <v-row justify="center">
-          <v-btn color="indigo" dark @click.stop="rev_dialog = true">Open Dialog</v-btn>
-
           <v-dialog v-model="rev_dialog" max-width="40%" hide-overlay>
             <v-card>
               <v-card-title class="headline">Write a Review!</v-card-title>
@@ -117,12 +118,17 @@
                 v-model="user_review"
                 :maxlength="250"
                 class="pa-5"
+                required
               ></v-textarea>
-              <v-card-text>Let other users know what you think of the book! Did you love it? Did you hate it? Don't be afraid to be honest.</v-card-text>
+              <!-- rating -->
+              <v-card-text>
+                Let other users know what you think of the book! Did you love it? Did you hate it? Don't be afraid to be honest.
+                <v-rating v-model="user_rating" half-increments></v-rating>
+              </v-card-text>
 
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="green darken-1" text @click="rev_dialog = false">submit</v-btn>
+                <v-btn color="green darken-1" text @click="submit_review">submit</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -145,6 +151,7 @@ export default {
     items: ["Title", "Author", "Year", "ISBN"],
     response: [],
     response_review: [],
+    response_review2: [],
     status: false,
     headers: [
       { text: "ISBN", value: "isbn" },
@@ -170,7 +177,10 @@ export default {
     },
     dialog: false,
     rev_dialog: false,
-    user_review: "",
+    user_review: "Please write your review here.",
+    user_rating: 0,
+    avg_user_rating: 0,
+    no_user_rating: 0,
   }),
   methods: {
     logout() {
@@ -201,10 +211,38 @@ export default {
           }
         });
     },
-    //
+    //get user submitted reviews
+    get_userreview() {
+        axios
+        .get("http://127.0.0.1:5000/get_review", {
+          params: {
+            isbn: this.selected_book.isbn
+          },
+          proxy: {
+            host: "http://127.0.0.1",
+            port: 5000
+          }
+        })
+        .then(result => {
+          //checks to see if goodread api returns any books, if so store ratings and number of ratings
+          this.response_review2 = result.data.result;
+          if (this.response_review2.length) {
+            var sum = 0.0;
+            this.no_user_rating = this.response_review2.length;
+            for (var i = 0; i < this.response_review2.length; i++) {
+              sum+=this.response_review2[i].rating;
+            }
+            sum/=this.response_review2.length;
+            this.avg_user_rating = sum;
+          }
+        });
+    },
+    // when user clicks on row in table, bring up book page 
     handleClick(value) {
       this.selected_book = value;
       this.dialog = true;
+      this.avg_user_rating= 0.0;
+      this.no_user_rating = 0;
       //get ratings from goodreads
       axios
         .get("http://127.0.0.1:5000/goodread", {
@@ -217,6 +255,7 @@ export default {
           }
         })
         .then(result => {
+
           //checks to see if goodread api returns any books, if so store ratings and number of ratings
           this.goodread_reviews = result.data;
           if (this.goodread_reviews.status == "good") {
@@ -224,12 +263,35 @@ export default {
               this.goodread_reviews.goodread.books[0].average_rating
             );
             this.rating.no_rating = this.goodread_reviews.goodread.books[0].ratings_count;
+          } else {
+            this.rating.avg_rating = 0.0;
+            this.rating.no_rating = "Unknown"
           }
         });
       //get reviews from database
+      this.get_userreview()
     },
+
     submit_review() {
-      this.rev_dialog = true;
+      this.rev_dialog = false;
+      axios
+        .get("http://127.0.0.1:5000/submitreview", {
+          params: {
+            isbn: this.selected_book.isbn,
+            username: this.username,
+            review: this.user_review,
+            rating: this.user_rating
+          },
+          proxy: {
+            host: "http://127.0.0.1",
+            port: 5000
+          }
+        })
+        .then(result => {
+          //get updated reviews from database
+          this.response_reviews2 = result;
+          this.get_userreview(); 
+        });
     },
     mounted() {
       eventBus.$on("pass-user", data => {
@@ -251,4 +313,5 @@ export default {
   padding-left: 5%;
   padding-top: 2%;
 }
+
 </style>
