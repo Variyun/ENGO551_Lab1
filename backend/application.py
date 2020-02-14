@@ -123,10 +123,10 @@ def get_review():
     return data
 
 # Api function for other users to use 
-@app.route("/api", methods=["GET"])
+@app.route("/api/<string:isbn>", methods=["GET"])
 @cross_origin()
-def api():
-    isbn = request.args.get("isbn")
+def api(isbn):
+    
     book = db.execute("SELECT * FROM library WHERE isbn=:isbn", {"isbn": isbn}).fetchall()
     if len(book) == 0:
         return "404: Could not find book with this ISBN"
