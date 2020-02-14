@@ -1,6 +1,6 @@
-# ENGO551_Lab1
+# BookExplorer
 
-Engineering 551 - Advanced Geospatial Topics Winter 2020  
+Made for Engineering 551 - Advanced Geospatial Topics Winter 2020  
 Lab 1 - Flask, SQL, ORMs, APIs  
 
 ## What is this?
