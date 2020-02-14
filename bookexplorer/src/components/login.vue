@@ -55,7 +55,7 @@
             <v-card-text>
               <h1>Welcome to BookExplorer!</h1>
               <br />
-              <h3>BookExplorer is an app that lets you look up any book by title, author, and even ISBN!</h3>
+              <h3>BookExplorer is an app that lets you look up any book by title, author, year, and even ISBN!</h3>
               <h3>With BookExplorer, you can even look at reviews and submit your own as well.</h3>
               <br />
               <h2>To start, please log in!</h2>

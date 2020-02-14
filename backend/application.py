@@ -93,7 +93,6 @@ def goodread():
     # key = "swIxMzw2BAh2FK5fXd3PSg"
     url = "https://www.goodreads.com/book/review_counts?key=swIxMzw2BAh2FK5fXd3PSg&isbns="
     isbns = request.args.get("isbn")
-    test = url + isbns + "&format=json"
     r = requests.get(url + isbns + "&format=json")
     if r.ok:
         return jsonify({"goodread": r.json(), "status": "good"}) 
