@@ -6,6 +6,16 @@ Lab 1 - Flask, SQL, ORMs, APIs
 ## What is this?
 This is a simple web app called BookExplorer. This app allows users to search books by author, title, year, and ISBN. To use this app, users must register for an account (but don't enter in anything serious because I didn't hash your passwords) and log in. Users can see the average ratings of books on Goodreads as well as the average user rating. On BookExplorer you can submit your own reviews and rate all your favorite books!   
 
+## Features 
+
+* Login/ Logout & Account Registration: Users are able to register for an account and login/out after registration. The registration page will check to see if the username is used or not (which will result in an error message if they try to use it).
+
+* Book Search: Users can search books by author, title, year, and ISBN. The search function will retur all like terms the user entered into the search bar. An error message will be displayed if no books are found.  
+
+* Book Review: Users can submit reviews for books and see other user submitted reviews/ ratings. Users can also see the average Goodreads rating and average user rating on the book page.
+
+* API Access: Users can access the API by using the route /api/<isbn> which will return a json containing book title, year, author, ISBN, average rating, and number of ratings. 
+  
 **Link to demo:** https://youtu.be/Xp3_-3hHb5A
 
 ## Instructions to Run the Website
