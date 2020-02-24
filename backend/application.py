@@ -61,7 +61,8 @@ def namecheck():
 def loggingin():
     username = request.args.get("username")
     password = request.args.get("password")
-    if db.execute("SELECT username FROM registered_users WHERE username=:username AND password=:password", {"username": username, "password": password}).rowcount == 1:
+    hashpass = hashlib.sha256(password.encode('utf-8')).hexdigest()
+    if db.execute("SELECT username FROM registered_users WHERE username=:username AND password=:password", {"username": username, "password": hashpass}).rowcount == 1:
         return ({"user": username, "loggedin": "true"})
     else:
         return ({"user": username, "loggedin": "false"}) 
