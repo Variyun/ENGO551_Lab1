@@ -1,4 +1,4 @@
-import os, psycopg2, requests
+import os, psycopg2, requests, hashlib
 from flask import Flask, request, session, render_template, jsonify
 from flask_session import Session
 from flask_cors import CORS, cross_origin
@@ -34,11 +34,12 @@ def index():
 def registering():
     username = request.args.get("username")
     password = request.args.get("password")
-    #try to add user to database, return fail if unable
+    # hash the passwords
+    hashpass = hashlib.sha256(password.encode('utf-8')).hexdigest()
+    # try to add user to database, return fail if unable
     try:
         db.execute("INSERT INTO registered_users (username, password) VALUES (:username, :password)", 
-        {"username": username, "password": password})
-
+        {"username": username, "password": hashpass})
         db.commit() 
     except exc.SQLAlchemyError:
         return "failure"
