@@ -16,7 +16,7 @@ Lab 1 - Flask, SQL, ORMs, APIs
 **Link to demo:** https://youtu.be/Xp3_-3hHb5A
 
 ## Instructions to Run the Website
-* Flask: While in the /backend folder, run the command "source ./set_variables.sh". This will run a simple shell script to set the environmental variables. Run the command "flask run" to start the flask app.
+* Flask: To install the required python packages, we can run the command "pip3 install -r requirements.txt" while in the /backend folder. To set our environmental variables we can run the command "source ./set_variables.sh" to execute a simple shell script. Run the command "flask run" to start the flask app.
 
 * Vue: While in the /bookexplorer folder, run the command "npm install" to install all the required dependencies used in this project. Once that is finished installing, run the command "npm run serve". This will host the website on your local machine and you can access it by going to "localhost:8080" which is the default address.  
 
